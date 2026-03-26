@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <stdbool.h>
+#include <raylib.h>
 
 #define CARD_LINES 5
 #define CARD_WIDTH 7  // "┌────┐ " including trailing space
@@ -39,7 +40,7 @@ typedef struct {
   size_t capacity;
 } Deck;
 
-#include "poker_eval.h"
+// #include "poker_eval.h"
 
 void card_pop(Deck *deck, size_t index) {
   for(size_t i = index; i < deck->count - 1; i++) {
@@ -124,7 +125,7 @@ Deck *deck_initializer() {
   return deck;
 }
 
-int main() {
+int main(void) {
   srand(time(NULL));
   Deck *main_deck= deck_initializer();
   GameState *gameS = malloc(sizeof(GameState));
@@ -151,7 +152,42 @@ int main() {
   gameS->current_step = PreFlop;
   bool running = true;
 
-  do {
+  // Initialization
+    //--------------------------------------------------------------------------------------
+    const int screenWidth = 800;
+    const int screenHeight = 450;
+
+    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+
+    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    //--------------------------------------------------------------------------------------
+
+    // Main game loop
+    while (!WindowShouldClose())    // Detect window close button or ESC key
+    {
+        // Update
+        //----------------------------------------------------------------------------------
+        // TODO: Update your variables here
+        //----------------------------------------------------------------------------------
+
+        // Draw
+        //----------------------------------------------------------------------------------
+        BeginDrawing();
+
+            ClearBackground(RAYWHITE);
+
+            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+
+        EndDrawing();
+        //----------------------------------------------------------------------------------
+    }
+
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
+    CloseWindow();        // Close window and OpenGL context
+    //--------------------------------------------------------------------------------------
+
+  /* do {
     switch(gameS->current_step) {
       case PreFlop:
         { 
@@ -250,7 +286,7 @@ int main() {
         break;
     }
 
-  } while(running);
+  } while(running); */
 
   return 0;
 }
