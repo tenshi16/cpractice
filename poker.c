@@ -63,6 +63,7 @@ void assign_cards(Player *player, Deck *main_deck) {
   rand_index = random_int(0, main_deck->count -1);
   player->deck->cards[1] = main_deck->cards[rand_index];
   card_pop(main_deck, rand_index);
+  player->deck->count = 2;
 }
 
 const char *suit_symbols[] = { "♣", "♦", "♥", "♠" };
@@ -99,7 +100,8 @@ Deck *deck_initializer() {
   return deck;
 }
 
-int main() { 
+int main() {
+  srand(time(NULL));
   Deck *main_deck= deck_initializer();
   GameState *gameS = malloc(sizeof(GameState));
   Player *player_1 = malloc(sizeof(Player));
@@ -109,55 +111,94 @@ int main() {
   Deck *deck_1 = malloc(sizeof(Deck));
   Deck *deck_2 = malloc(sizeof(Deck));
   Deck *deck_3 = malloc(sizeof(Deck));
-  Deck *deck_house = malloc(sizeof(Deck));
+  Deck *house_deck= malloc(sizeof(Deck));
   player_1->deck = deck_1;
   player_2->deck = deck_2;
   player_3->deck = deck_3;
   deck_1->capacity = 2;
   deck_2->capacity = 2;
   deck_3->capacity = 2;
-  deck_house->capacity = 5;
+  house_deck->capacity = 5;
   deck_1->count = 0;
   deck_2->count = 0;
   deck_3->count = 0;
-  deck_house->count = 0;
+  house_deck->count = 0;
 
   gameS->current_step = PreFlop;
-  /* do {
+
+  do {
     switch(gameS->current_step) {
       case PreFlop:
-        { */
+        { 
           // Deal two cards to each player
           assign_cards(player_1, main_deck);
           assign_cards(player_2, main_deck);
           assign_cards(player_3, main_deck);
-       /* }
+
+          // Display only the cards of the Player 1 
+          display_card(&player_1->deck->cards[1]);
+          display_card(&player_2->deck->cards[0]);
+          gameS->current_step = Flop;
+        }
         break;
       case Flop:
         {
+          // Show The First 3 cards 
+          int rand_index = random_int(0, main_deck->count - 1);
+          house_deck->cards = malloc(sizeof(Card) * 2);
+          house_deck->cards[0] = main_deck->cards[rand_index];
+          card_pop(main_deck, rand_index);
+
+
+          rand_index = random_int(0, main_deck->count - 1);
+          house_deck->cards[1] = main_deck->cards[rand_index];
+          card_pop(main_deck, rand_index);
+
+
+          rand_index = random_int(0, main_deck->count - 1);
+          house_deck->cards[2] = main_deck->cards[rand_index];
+          card_pop(main_deck, rand_index);
+
+          house_deck->count = 3;
+
+          for(int i = 0; i < house_deck->count;i++) {
+            display_card(&house_deck->cards[i]);
+          }
+          gameS->current_step = Turn;
         }
         break;
       case Turn:
         {
+          int rand_index = random_int(0, main_deck->count - 1);
+          house_deck->cards[3] = main_deck->cards[rand_index];
+          card_pop(main_deck, rand_index);
+          house_deck->count = 4;
+          for(int i = 0; i < house_deck->count;i++) {
+            display_card(&house_deck->cards[i]);
+          }
+          gameS->current_step = River;
         }
         break;
       case River:
         {
+          int rand_index = random_int(0, main_deck->count - 1);
+          house_deck->cards[4] = main_deck->cards[rand_index];
+          card_pop(main_deck, rand_index);
+          house_deck->count = 5;
+          for(int i = 0; i < house_deck->count;i++) {
+            display_card(&house_deck->cards[i]);
+          }
+          gameS->current_step = Showdown;
         }
         break;
       case Showdown:
         {
+          return 0;
         }
         break;
     }
 
-  } while(1);*/
-  display_card(&player_1->deck->cards[0]);
-  display_card(&player_1->deck->cards[1]);
-  display_card(&player_2->deck->cards[0]);
-  display_card(&player_2->deck->cards[1]);
-  display_card(&player_3->deck->cards[0]);
-  display_card(&player_3->deck->cards[1]);
+  } while(1);
 
   return 0;
 }
