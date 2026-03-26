@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define CARD_LINES 5
 #define CARD_WIDTH 7  // "┌────┐ " including trailing space
@@ -37,6 +38,8 @@ typedef struct {
   size_t count;
   size_t capacity;
 } Deck;
+
+#include "poker_eval.h"
 
 void card_pop(Deck *deck, size_t index) {
   for(size_t i = index; i < deck->count - 1; i++) {
@@ -146,6 +149,7 @@ int main() {
   house_deck->count = 0;
 
   gameS->current_step = PreFlop;
+  bool running = true;
 
   do {
     switch(gameS->current_step) {
@@ -159,6 +163,7 @@ int main() {
 
           // Display only the cards of the Player 1 
           display_cards(player_1->deck->cards, player_1->deck->count);
+          printf("Pre-flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
           gameS->current_step = Flop;
           getchar();
         }
@@ -167,6 +172,7 @@ int main() {
         {
           system("clear");
           display_cards(player_1->deck->cards, player_1->deck->count);
+          printf("Flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
           printf("\n\n");
           // Show The First 3 cards 
           int rand_index = random_int(0, main_deck->count - 1);
@@ -195,6 +201,7 @@ int main() {
         {
           system("clear");
           display_cards(player_1->deck->cards, player_1->deck->count);
+          printf("Turn: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
           printf("\n\n");
 
           int rand_index = random_int(0, main_deck->count - 1);
@@ -210,6 +217,7 @@ int main() {
         {
           system("clear");
           display_cards(player_1->deck->cards, player_1->deck->count);
+          printf("River: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
           printf("\n\n");
 
           int rand_index = random_int(0, main_deck->count - 1);
@@ -223,12 +231,26 @@ int main() {
         break;
       case Showdown:
         {
-          return 0;
+          Deck *players[] = { player_1->deck, player_2->deck, player_3->deck };
+          HandScore scores[3];
+          int winner = showdown(players, 3, house_deck, scores);
+
+          if (winner == -1)
+            printf("Tie!\n");
+          else
+            printf("Player %d wins with %s!\n", winner + 1,
+                hand_rank_name(scores[winner].rank));
+         printf("\nPlayer 2\n");
+         display_cards(player_2->deck->cards, player_2->deck->count);
+         printf("\nPlayer 3\n");
+         display_cards(player_3->deck->cards, player_3->deck->count);
+         running = false;
+         break;
         }
         break;
     }
 
-  } while(1);
+  } while(running);
 
   return 0;
 }
