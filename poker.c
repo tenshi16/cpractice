@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
+#define CARD_LINES 5
+#define CARD_WIDTH 7  // "┌────┐ " including trailing space
 
 int random_int(int min, int max) {
     return rand() % (max - min + 1) + min;
@@ -71,16 +74,34 @@ const char *rank_symbols[] = {
     "2","3","4","5","6","7","8","9","10","J","Q","K","A"
 };
 
-void display_card(const Card *c) {
+void card_to_lines(const Card *c, char lines[CARD_LINES][32]) {
     const char *suit = suit_symbols[c->suit];
     const char *rank = rank_symbols[c->variant];
     int pad = (c->variant == _10) ? 0 : 1;
 
-    printf("┌────┐\n");
-    printf("│%-2s  │\n", rank);
-    printf("│ %s  │\n", suit);
-    printf("│  %*s│\n", pad + 1, rank);
-    printf("└────┘\n");
+    snprintf(lines[0], 32, "┌────┐ ");
+    snprintf(lines[1], 32, "│%-2s  │ ", rank);
+    snprintf(lines[2], 32, "│ %s  │ ", suit);
+    snprintf(lines[3], 32, "│  %*s│ ", pad + 1, rank);
+    snprintf(lines[4], 32, "└────┘ ");
+}
+
+void display_cards(const Card *cards, size_t count) {
+    char lines[CARD_LINES][32];
+    char all_lines[CARD_LINES][256];  // accumulate full rows here
+
+    // initialize empty
+    for (int i = 0; i < CARD_LINES; i++)
+        all_lines[i][0] = '\0';
+
+    for (size_t c = 0; c < count; c++) {
+        card_to_lines(&cards[c], lines);
+        for (int i = 0; i < CARD_LINES; i++)
+            strcat(all_lines[i], lines[i]);
+    }
+
+    for (int i = 0; i < CARD_LINES; i++)
+        printf("%s\n", all_lines[i]);
 }
 
 Deck *deck_initializer() {
@@ -130,19 +151,23 @@ int main() {
     switch(gameS->current_step) {
       case PreFlop:
         { 
+          system("clear");
           // Deal two cards to each player
           assign_cards(player_1, main_deck);
           assign_cards(player_2, main_deck);
           assign_cards(player_3, main_deck);
 
           // Display only the cards of the Player 1 
-          display_card(&player_1->deck->cards[1]);
-          display_card(&player_2->deck->cards[0]);
+          display_cards(player_1->deck->cards, player_1->deck->count);
           gameS->current_step = Flop;
+          getchar();
         }
         break;
       case Flop:
         {
+          system("clear");
+          display_cards(player_1->deck->cards, player_1->deck->count);
+          printf("\n\n");
           // Show The First 3 cards 
           int rand_index = random_int(0, main_deck->count - 1);
           house_deck->cards = malloc(sizeof(Card) * 2);
@@ -161,34 +186,39 @@ int main() {
 
           house_deck->count = 3;
 
-          for(int i = 0; i < house_deck->count;i++) {
-            display_card(&house_deck->cards[i]);
-          }
+          display_cards(house_deck->cards, house_deck->count);
           gameS->current_step = Turn;
+          getchar();
         }
         break;
       case Turn:
         {
+          system("clear");
+          display_cards(player_1->deck->cards, player_1->deck->count);
+          printf("\n\n");
+
           int rand_index = random_int(0, main_deck->count - 1);
           house_deck->cards[3] = main_deck->cards[rand_index];
           card_pop(main_deck, rand_index);
           house_deck->count = 4;
-          for(int i = 0; i < house_deck->count;i++) {
-            display_card(&house_deck->cards[i]);
-          }
+          display_cards(house_deck->cards, house_deck->count);
           gameS->current_step = River;
+          getchar();
         }
         break;
       case River:
         {
+          system("clear");
+          display_cards(player_1->deck->cards, player_1->deck->count);
+          printf("\n\n");
+
           int rand_index = random_int(0, main_deck->count - 1);
           house_deck->cards[4] = main_deck->cards[rand_index];
           card_pop(main_deck, rand_index);
           house_deck->count = 5;
-          for(int i = 0; i < house_deck->count;i++) {
-            display_card(&house_deck->cards[i]);
-          }
+          display_cards(house_deck->cards, house_deck->count);
           gameS->current_step = Showdown;
+          getchar();
         }
         break;
       case Showdown:
