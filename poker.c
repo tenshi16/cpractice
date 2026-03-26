@@ -1,5 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
+
+int random_int(int min, int max) {
+    return rand() % (max - min + 1) + min;
+}
 
 typedef enum  { Club = 0, Diamonds = 1, Hearts = 2, Spades = 3 } Suits;
 typedef enum {
@@ -28,6 +34,36 @@ typedef struct {
   size_t count;
   size_t capacity;
 } Deck;
+
+void card_pop(Deck *deck, size_t index) {
+  for(size_t i = index; i < deck->count - 1; i++) {
+    deck->cards[i] = deck->cards[i + 1];
+  }
+  deck->count--;
+}
+
+
+typedef struct {
+  Deck *deck;
+  float winrate;
+  int games_won;
+} Player;
+
+typedef enum {PreFlop, Flop, Turn, River, Showdown } Step; 
+
+typedef struct {
+  Step current_step;
+} GameState;
+
+void assign_cards(Player *player, Deck *main_deck) {
+  int rand_index = random_int(0, main_deck->count - 1);
+  player->deck->cards = malloc(sizeof(Card) * 2);
+  player->deck->cards[0] = main_deck->cards[rand_index];
+  card_pop(main_deck, rand_index);
+  rand_index = random_int(0, main_deck->count -1);
+  player->deck->cards[1] = main_deck->cards[rand_index];
+  card_pop(main_deck, rand_index);
+}
 
 const char *suit_symbols[] = { "♣", "♦", "♥", "♠" };
 const char *rank_symbols[] = {
@@ -64,9 +100,64 @@ Deck *deck_initializer() {
 }
 
 int main() { 
-  Deck *deck = deck_initializer();
-  for(int i = 0; i<52; i++){
-    display_card(&deck->cards[i]);
-  }
-  return 0; 
+  Deck *main_deck= deck_initializer();
+  GameState *gameS = malloc(sizeof(GameState));
+  Player *player_1 = malloc(sizeof(Player));
+  Player *player_2 = malloc(sizeof(Player));
+  Player *player_3 = malloc(sizeof(Player));
+
+  Deck *deck_1 = malloc(sizeof(Deck));
+  Deck *deck_2 = malloc(sizeof(Deck));
+  Deck *deck_3 = malloc(sizeof(Deck));
+  Deck *deck_house = malloc(sizeof(Deck));
+  player_1->deck = deck_1;
+  player_2->deck = deck_2;
+  player_3->deck = deck_3;
+  deck_1->capacity = 2;
+  deck_2->capacity = 2;
+  deck_3->capacity = 2;
+  deck_house->capacity = 5;
+  deck_1->count = 0;
+  deck_2->count = 0;
+  deck_3->count = 0;
+  deck_house->count = 0;
+
+  gameS->current_step = PreFlop;
+  /* do {
+    switch(gameS->current_step) {
+      case PreFlop:
+        { */
+          // Deal two cards to each player
+          assign_cards(player_1, main_deck);
+          assign_cards(player_2, main_deck);
+          assign_cards(player_3, main_deck);
+       /* }
+        break;
+      case Flop:
+        {
+        }
+        break;
+      case Turn:
+        {
+        }
+        break;
+      case River:
+        {
+        }
+        break;
+      case Showdown:
+        {
+        }
+        break;
+    }
+
+  } while(1);*/
+  display_card(&player_1->deck->cards[0]);
+  display_card(&player_1->deck->cards[1]);
+  display_card(&player_2->deck->cards[0]);
+  display_card(&player_2->deck->cards[1]);
+  display_card(&player_3->deck->cards[0]);
+  display_card(&player_3->deck->cards[1]);
+
+  return 0;
 }
