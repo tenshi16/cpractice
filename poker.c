@@ -19,6 +19,8 @@ const char *suit_symbols[] = {"♣", "♦", "♥", "♠"};
 const char *rank_symbols[] = {
     "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
 
+const int default_card_padding = 20;
+
 int random_int(int min, int max) {
     return rand() % (max - min + 1) + min;
 }
@@ -96,7 +98,39 @@ void draw_card(const Card *card)
 {
   const char *suit = suit_symbols[card->suit];
   const char *rank = rank_symbols[card->variant];
-  DrawText(rank, card->x + 20, card->y + 20, 36, BLACK);
+  DrawText(rank, card->x + default_card_padding, card->y + default_card_padding, 36, BLACK);
+
+  switch(card->suit) {
+    case Club:
+    {
+      int shape_radius = 15;
+      Vector2 club_base = {card->x + card->width / 2, card->y + card->height / 2 + 25};
+      DrawCircle(card->x + card->width / 2, card->y + card->height / 2, 15, BLACK);
+      DrawCircle(card->x + card->width / 2 - default_card_padding, card->y + card->height / 2, shape_radius, BLACK);
+      DrawCircle(card->x + card->width / 2 + default_card_padding, card->y + card->height / 2, shape_radius, BLACK);
+      DrawCircle(card->x + card->width / 2, card->y + card->height / 2 - default_card_padding, shape_radius, BLACK);
+      DrawPoly(club_base, 3, shape_radius, 30, BLACK);
+    }
+    break;
+    case Diamonds:
+    {
+
+    }
+    break;
+    {
+
+    }
+    case Hearts:
+    {
+
+    }
+    break;
+    case Spades:
+    {
+
+    }
+    break;
+  }
 }
 
 void draw_deck(const Deck *player_deck)
