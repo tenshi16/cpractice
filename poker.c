@@ -7,7 +7,7 @@
 
 #define CARD_LINES 5
 #define CARD_WIDTH 7  // "┌────┐ " including trailing space
-#define PADDING 50 
+#define PADDING 50
 
 typedef struct {
   float x;
@@ -15,6 +15,9 @@ typedef struct {
 } Size;
 
 const Size Window_Size = {1920, 1080};
+const char *suit_symbols[] = {"♣", "♦", "♥", "♠"};
+const char *rank_symbols[] = {
+    "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
 
 int random_int(int min, int max) {
     return rand() % (max - min + 1) + min;
@@ -89,13 +92,21 @@ void player_cards_init(Deck *player_deck) {
   player_deck->cards[1].y = Window_Size.y - player_deck->cards[1].height - PADDING;
 }
 
-void draw_deck(Deck *player_deck)
+void draw_card(const Card *card)
+{
+  const char *suit = suit_symbols[card->suit];
+  const char *rank = rank_symbols[card->variant];
+  DrawText(rank, card->x + 20, card->y + 20, 36, BLACK);
+}
+
+void draw_deck(const Deck *player_deck)
 {
   Color color = {243, 241, 243, 255};
   for (int i = 0; i < player_deck->count; i++)
   {
     Rectangle rec = {player_deck->cards[i].x, player_deck->cards[i].y, player_deck->cards[i].width, player_deck->cards[i].height};
     DrawRectangleRounded(rec, 0.1f, 8, color);
+    draw_card(&player_deck->cards[i]);
   }
 }
 
@@ -109,11 +120,6 @@ void assign_cards(Player *player, Deck *main_deck) {
   card_pop(main_deck, rand_index);
   player->deck->count = 2;
 }
-
-const char *suit_symbols[] = { "♣", "♦", "♥", "♠" };
-const char *rank_symbols[] = {
-    "2","3","4","5","6","7","8","9","10","J","Q","K","A"
-};
 
 void card_to_lines(const Card *c, char lines[CARD_LINES][32]) {
     const char *suit = suit_symbols[c->suit];
@@ -165,6 +171,7 @@ Deck *deck_initializer() {
 int main(void) {
   srand(time(NULL));
   Deck *main_deck= deck_initializer();
+
   GameState *gameS = malloc(sizeof(GameState));
   Player *player_1 = malloc(sizeof(Player));
   Player *player_2 = malloc(sizeof(Player));
