@@ -7,6 +7,14 @@
 
 #define CARD_LINES 5
 #define CARD_WIDTH 7  // "┌────┐ " including trailing space
+#define PADDING 50 
+
+typedef struct {
+  float x;
+  float y;
+} Size;
+
+const Size Window_Size = {1920, 1080};
 
 int random_int(int min, int max) {
     return rand() % (max - min + 1) + min;
@@ -29,9 +37,14 @@ typedef enum {
   _A = 12
 } Variant;
 
-typedef struct {
+typedef struct
+{
   Suits suit;
   Variant variant;
+  float x;      
+  float y;      
+  float width;  
+  float height; 
 } Card;
 
 typedef struct {
@@ -61,6 +74,30 @@ typedef enum {PreFlop, Flop, Turn, River, Showdown } Step;
 typedef struct {
   Step current_step;
 } GameState;
+
+void player_cards_init(Deck *player_deck) {
+  // Set default size
+  player_deck->cards[0].width= 200;
+  player_deck->cards[1].width= 200;
+  player_deck->cards[0].height= 300;
+  player_deck->cards[1].height = 300;
+
+  // Set default position
+  player_deck->cards[0].x = Window_Size.x / 2 - player_deck->cards[0].width - PADDING;
+  player_deck->cards[0].y = Window_Size.y - player_deck->cards[0].height - PADDING;
+  player_deck->cards[1].x = Window_Size.x / 2;
+  player_deck->cards[1].y = Window_Size.y - player_deck->cards[1].height - PADDING;
+}
+
+void draw_deck(Deck *player_deck)
+{
+  Color color = {243, 241, 243, 255};
+  for (int i = 0; i < player_deck->count; i++)
+  {
+    Rectangle rec = {player_deck->cards[i].x, player_deck->cards[i].y, player_deck->cards[i].width, player_deck->cards[i].height};
+    DrawRectangleRounded(rec, 0.1f, 8, color);
+  }
+}
 
 void assign_cards(Player *player, Deck *main_deck) {
   int rand_index = random_int(0, main_deck->count - 1);
@@ -154,10 +191,12 @@ int main(void) {
 
   // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 1920;
+    const int screenHeight = 1080;
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    assign_cards(player_1, main_deck);
+    player_cards_init(player_1->deck);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -165,21 +204,22 @@ int main(void) {
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
+      // Update
+      //----------------------------------------------------------------------------------
+      // TODO: Update your variables here
+      //----------------------------------------------------------------------------------
 
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
+      // Draw
+      //----------------------------------------------------------------------------------
 
-            ClearBackground(RAYWHITE);
+      BeginDrawing();
 
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+      ClearBackground(LIGHTGRAY);
+      draw_deck(player_1->deck);
 
-        EndDrawing();
-        //----------------------------------------------------------------------------------
+
+      EndDrawing();
+      //----------------------------------------------------------------------------------
     }
 
     // De-Initialization
