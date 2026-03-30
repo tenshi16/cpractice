@@ -20,6 +20,7 @@ const char *rank_symbols[] = {
     "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
 
 const int default_card_padding = 20;
+const Color card_color = {243, 241, 243, 255};
 
 int random_int(int min, int max) {
     return rand() % (max - min + 1) + min;
@@ -96,16 +97,17 @@ void player_cards_init(Deck *player_deck) {
 
 void draw_card(const Card *card)
 {
-  const char *suit = suit_symbols[card->suit];
+  // const char *suit = suit_symbols[card->suit];
   const char *rank = rank_symbols[card->variant];
-  DrawText(rank, card->x + default_card_padding, card->y + default_card_padding, 36, BLACK);
+  const int shape_radius = 15;
+  const int symbol_y_offset = 25; 
 
   switch(card->suit) {
     case Club:
     {
-      int shape_radius = 15;
-      Vector2 club_base = {card->x + card->width / 2, card->y + card->height / 2 + 25};
-      DrawCircle(card->x + card->width / 2, card->y + card->height / 2, 15, BLACK);
+      DrawText(rank, card->x + default_card_padding, card->y + default_card_padding, 36, BLACK);
+      Vector2 club_base = {card->x + card->width / 2, card->y + card->height / 2 + symbol_y_offset};
+      DrawCircle(card->x + card->width / 2, card->y + card->height / 2, shape_radius, BLACK);
       DrawCircle(card->x + card->width / 2 - default_card_padding, card->y + card->height / 2, shape_radius, BLACK);
       DrawCircle(card->x + card->width / 2 + default_card_padding, card->y + card->height / 2, shape_radius, BLACK);
       DrawCircle(card->x + card->width / 2, card->y + card->height / 2 - default_card_padding, shape_radius, BLACK);
@@ -114,14 +116,25 @@ void draw_card(const Card *card)
     break;
     case Diamonds:
     {
-
+      DrawText(rank, card->x + default_card_padding, card->y + default_card_padding, 36, RED);
+      Vector2 diamond_top = {card->x + card->width / 2, card->y + card->height / 2 };
+      Vector2 diamond_bottom = {card->x + card->width / 2, card->y + card->height / 2 + symbol_y_offset + 5 };
+      DrawPoly(diamond_top, 3, shape_radius * 2, 30, RED);
+      DrawPoly(diamond_bottom, 3, shape_radius * 2, 90, RED);
     }
     break;
-    {
-
-    }
     case Hearts:
     {
+      Vector2 diamond_bottom = {card->x + card->width / 2, card->y + card->height / 2 + symbol_y_offset + 5 };
+      DrawText(rank, card->x + default_card_padding, card->y + default_card_padding, 36, RED);
+      DrawCircle(card->x + (card->width / 2) * 0.8, card->y + card->height / 2, shape_radius * 1.5, RED);
+      DrawCircle(card->x + card->width / 2 + default_card_padding , card->y + card->height / 2, shape_radius * 1.5, RED);
+      DrawEllipse(card->x + (card->width / 2), card->y + card->height / 2 - (symbol_y_offset * 2), shape_radius, shape_radius * 2, card_color);
+      DrawPoly(diamond_bottom, 3, shape_radius * 3, 90, RED);
+      DrawCircle(card->x + (symbol_y_offset * 1.8), card->y + card->height * 0.7, shape_radius * 3, card_color);
+      DrawCircle(card->x + (symbol_y_offset * 2.1), card->y + card->height * 0.75, shape_radius * 3, card_color);
+      DrawCircle((card->x + card->width) - (symbol_y_offset * 1.8), card->y + card->height * 0.7, shape_radius * 3, card_color);
+      DrawCircle((card->x + card->width) - (symbol_y_offset * 2.1), card->y + card->height * 0.75, shape_radius * 3, card_color);
 
     }
     break;
@@ -135,11 +148,10 @@ void draw_card(const Card *card)
 
 void draw_deck(const Deck *player_deck)
 {
-  Color color = {243, 241, 243, 255};
-  for (int i = 0; i < player_deck->count; i++)
+  for (size_t i = 0; i < player_deck->count; i++)
   {
     Rectangle rec = {player_deck->cards[i].x, player_deck->cards[i].y, player_deck->cards[i].width, player_deck->cards[i].height};
-    DrawRectangleRounded(rec, 0.1f, 8, color);
+    DrawRectangleRounded(rec, 0.1f, 8, card_color);
     draw_card(&player_deck->cards[i]);
   }
 }
@@ -228,7 +240,6 @@ int main(void) {
   house_deck->count = 0;
 
   gameS->current_step = PreFlop;
-  bool running = true;
 
   // Initialization
     //--------------------------------------------------------------------------------------
