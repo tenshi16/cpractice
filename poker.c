@@ -131,16 +131,28 @@ void draw_card(const Card *card)
       DrawCircle(card->x + card->width / 2 + default_card_padding , card->y + card->height / 2, shape_radius * 1.5, RED);
       DrawEllipse(card->x + (card->width / 2), card->y + card->height / 2 - (symbol_y_offset * 2), shape_radius, shape_radius * 2, card_color);
       DrawPoly(diamond_bottom, 3, shape_radius * 3, 90, RED);
+      // Clip
       DrawCircle(card->x + (symbol_y_offset * 1.8), card->y + card->height * 0.7, shape_radius * 3, card_color);
       DrawCircle(card->x + (symbol_y_offset * 2.1), card->y + card->height * 0.75, shape_radius * 3, card_color);
       DrawCircle((card->x + card->width) - (symbol_y_offset * 1.8), card->y + card->height * 0.7, shape_radius * 3, card_color);
       DrawCircle((card->x + card->width) - (symbol_y_offset * 2.1), card->y + card->height * 0.75, shape_radius * 3, card_color);
-
     }
     break;
     case Spades:
     {
-
+      Vector2 diamond_top = {card->x + card->width / 2, card->y + card->height / 4 + symbol_y_offset + 20 };
+      Vector2 diamond_bottom= {card->x + card->width / 2, card->y + card->height / 2 + symbol_y_offset + 10};
+      DrawText(rank, card->x + default_card_padding, card->y + default_card_padding, 36, BLACK);
+      DrawCircle(card->x + (card->width / 2) * 0.8, card->y + card->height / 2, shape_radius * 1.5, BLACK);
+      DrawCircle(card->x + card->width / 2 + default_card_padding , card->y + card->height / 2, shape_radius * 1.5, BLACK);
+      // DrawEllipse(card->x + (card->width / 2), card->y + card->height, shape_radius, shape_radius * 2, card_color);
+      DrawPoly(diamond_top, 3, shape_radius * 3, 30, BLACK);
+      DrawPoly(diamond_bottom, 3, shape_radius * 2, 30, BLACK);
+      // Clip
+      // DrawCircle(card->x + (symbol_y_offset * 1.8), card->y + card->height / 3, shape_radius * 2, RED);
+      // DrawCircle(card->x + (symbol_y_offset * 2.1), card->y + card->height * 0.75, shape_radius * 3, RED);
+      // DrawCircle((card->x + card->width) - (symbol_y_offset * 1.8), card->y + card->height / 3, shape_radius * 2, RED);
+      // DrawCircle((card->x + card->width) - (symbol_y_offset * 2.1), card->y + card->height * 0.75, shape_radius * 3, RED);
     }
     break;
   }
