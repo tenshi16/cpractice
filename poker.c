@@ -75,7 +75,7 @@ typedef struct {
   int games_won;
 } Player;
 
-typedef enum {PreFlop, Flop, Turn, River, Showdown } Step; 
+typedef enum {Flop, Turn, River, Showdown } Step; 
 
 typedef struct {
   Step current_step;
@@ -93,6 +93,20 @@ void player_cards_init(Deck *player_deck) {
   player_deck->cards[0].y = Window_Size.y - player_deck->cards[0].height - PADDING;
   player_deck->cards[1].x = Window_Size.x / 2;
   player_deck->cards[1].y = Window_Size.y - player_deck->cards[1].height - PADDING;
+}
+
+void house_cards_init(Deck *house_deck) {
+  printf("DO WE GET IT? %ld", house_deck->count);
+  for(size_t i = 0; i < house_deck->count; i++){
+    if (house_deck->cards[i].width ==  0){
+      // Set size
+      house_deck->cards[i]. width = 200;
+      house_deck->cards[i]. height= 300;
+      house_deck->cards[i].x = Window_Size.x / 4 - house_deck->cards[i].width * ((i+1) * 100) - PADDING;
+      house_deck->cards[i].y = Window_Size.y - house_deck->cards[i].height - PADDING;
+    }
+  } 
+  // Set default size
 }
 
 void draw_card(const Card *card)
@@ -145,14 +159,8 @@ void draw_card(const Card *card)
       DrawText(rank, card->x + default_card_padding, card->y + default_card_padding, 36, BLACK);
       DrawCircle(card->x + (card->width / 2) * 0.8, card->y + card->height / 2, shape_radius * 1.5, BLACK);
       DrawCircle(card->x + card->width / 2 + default_card_padding , card->y + card->height / 2, shape_radius * 1.5, BLACK);
-      // DrawEllipse(card->x + (card->width / 2), card->y + card->height, shape_radius, shape_radius * 2, card_color);
       DrawPoly(diamond_top, 3, shape_radius * 3, 30, BLACK);
       DrawPoly(diamond_bottom, 3, shape_radius * 2, 30, BLACK);
-      // Clip
-      // DrawCircle(card->x + (symbol_y_offset * 1.8), card->y + card->height / 3, shape_radius * 2, RED);
-      // DrawCircle(card->x + (symbol_y_offset * 2.1), card->y + card->height * 0.75, shape_radius * 3, RED);
-      // DrawCircle((card->x + card->width) - (symbol_y_offset * 1.8), card->y + card->height / 3, shape_radius * 2, RED);
-      // DrawCircle((card->x + card->width) - (symbol_y_offset * 2.1), card->y + card->height * 0.75, shape_radius * 3, RED);
     }
     break;
   }
@@ -179,35 +187,6 @@ void assign_cards(Player *player, Deck *main_deck) {
   player->deck->count = 2;
 }
 
-void card_to_lines(const Card *c, char lines[CARD_LINES][32]) {
-    const char *suit = suit_symbols[c->suit];
-    const char *rank = rank_symbols[c->variant];
-    int pad = (c->variant == _10) ? 0 : 1;
-
-    snprintf(lines[0], 32, "┌────┐ ");
-    snprintf(lines[1], 32, "│%-2s  │ ", rank);
-    snprintf(lines[2], 32, "│ %s  │ ", suit);
-    snprintf(lines[3], 32, "│  %*s│ ", pad + 1, rank);
-    snprintf(lines[4], 32, "└────┘ ");
-}
-
-void display_cards(const Card *cards, size_t count) {
-    char lines[CARD_LINES][32];
-    char all_lines[CARD_LINES][256];  // accumulate full rows here
-
-    // initialize empty
-    for (int i = 0; i < CARD_LINES; i++)
-        all_lines[i][0] = '\0';
-
-    for (size_t c = 0; c < count; c++) {
-        card_to_lines(&cards[c], lines);
-        for (int i = 0; i < CARD_LINES; i++)
-            strcat(all_lines[i], lines[i]);
-    }
-
-    for (int i = 0; i < CARD_LINES; i++)
-        printf("%s\n", all_lines[i]);
-}
 
 Deck *deck_initializer() {
   Deck *deck = malloc(sizeof(Deck));
@@ -251,7 +230,7 @@ int main(void) {
   deck_3->count = 0;
   house_deck->count = 0;
 
-  gameS->current_step = PreFlop;
+  gameS->current_step = Flop;
 
   // Initialization
     //--------------------------------------------------------------------------------------
@@ -260,28 +239,64 @@ int main(void) {
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
     assign_cards(player_1, main_deck);
+    assign_cards(player_2, main_deck);
+    assign_cards(player_3, main_deck);
     player_cards_init(player_1->deck);
+    // printf("Pre-flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!GetKeyPressed())    // Detect window close button or ESC key
     {
-      // Update
-      //----------------------------------------------------------------------------------
-      // TODO: Update your variables here
-      //----------------------------------------------------------------------------------
-
-      // Draw
-      //----------------------------------------------------------------------------------
-
+      switch(gameS->current_step) {
+        case Flop:
+          {
+            // Show The First 3 cards 
+            int rand_index = random_int(0, main_deck->count - 1);
+            house_deck->cards = malloc(sizeof(Card) * 5);
+            house_deck->cards[0] = main_deck->cards[rand_index];
+            card_pop(main_deck, rand_index);
+            rand_index = random_int(0, main_deck->count - 1);
+            house_deck->cards[1] = main_deck->cards[rand_index];
+            card_pop(main_deck, rand_index);
+            rand_index = random_int(0, main_deck->count - 1);
+            house_deck->cards[2] = main_deck->cards[rand_index];
+            card_pop(main_deck, rand_index);
+            house_deck->count = 3;
+            gameS->current_step = Turn;
+          }
+          break;
+        case Turn:
+          {
+            int rand_index = random_int(0, main_deck->count - 1);
+            house_deck->cards[3] = main_deck->cards[rand_index];
+            card_pop(main_deck, rand_index);
+            house_deck->count = 4;
+            gameS->current_step = River;
+          }
+          break;
+        case River:
+          {
+            int rand_index = random_int(0, main_deck->count - 1);
+            house_deck->cards[4] = main_deck->cards[rand_index];
+            card_pop(main_deck, rand_index);
+            house_deck->count = 5;
+            gameS->current_step = Showdown;
+          }
+          break;
+        case Showdown:
+          {
+            int a = 0;
+          }
+          break;
+      } 
       BeginDrawing();
 
       ClearBackground(LIGHTGRAY);
       draw_deck(player_1->deck);
-
-
+      draw_deck(house_deck);
       EndDrawing();
       //----------------------------------------------------------------------------------
     }
