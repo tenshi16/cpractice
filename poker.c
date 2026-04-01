@@ -96,14 +96,13 @@ void player_cards_init(Deck *player_deck) {
 }
 
 void house_cards_init(Deck *house_deck) {
-  printf("DO WE GET IT? %ld", house_deck->count);
   for(size_t i = 0; i < house_deck->count; i++){
-    if (house_deck->cards[i].width ==  0){
+    if (house_deck->cards[i].width ==  0.0f) {
       // Set size
-      house_deck->cards[i]. width = 200;
-      house_deck->cards[i]. height= 300;
-      house_deck->cards[i].x = Window_Size.x / 4 - house_deck->cards[i].width * ((i+1) * 100) - PADDING;
-      house_deck->cards[i].y = Window_Size.y - house_deck->cards[i].height - PADDING;
+      house_deck->cards[i].width = 200;
+      house_deck->cards[i].height= 300;
+      house_deck->cards[i].x = house_deck->cards[i].width * ((i+1) * 1.5)  - PADDING;
+      house_deck->cards[i].y = Window_Size.y - house_deck->cards[i].height * 3;
     }
   } 
   // Set default size
@@ -265,6 +264,7 @@ int main(void) {
             house_deck->cards[2] = main_deck->cards[rand_index];
             card_pop(main_deck, rand_index);
             house_deck->count = 3;
+            house_cards_init(house_deck);
             gameS->current_step = Turn;
           }
           break;
@@ -274,6 +274,7 @@ int main(void) {
             house_deck->cards[3] = main_deck->cards[rand_index];
             card_pop(main_deck, rand_index);
             house_deck->count = 4;
+            house_cards_init(house_deck);
             gameS->current_step = River;
           }
           break;
@@ -283,6 +284,7 @@ int main(void) {
             house_deck->cards[4] = main_deck->cards[rand_index];
             card_pop(main_deck, rand_index);
             house_deck->count = 5;
+            house_cards_init(house_deck);
             gameS->current_step = Showdown;
           }
           break;
@@ -295,8 +297,8 @@ int main(void) {
       BeginDrawing();
 
       ClearBackground(LIGHTGRAY);
-      draw_deck(player_1->deck);
       draw_deck(house_deck);
+      draw_deck(player_1->deck);
       EndDrawing();
       //----------------------------------------------------------------------------------
     }
