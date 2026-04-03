@@ -59,7 +59,7 @@ typedef struct {
   size_t capacity;
 } Deck;
 
-// #include "poker_eval.h"
+#include "poker_eval.h"
 
 void card_pop(Deck *deck, size_t index) {
   for(size_t i = index; i < deck->count - 1; i++) {
@@ -241,14 +241,15 @@ int main(void) {
     assign_cards(player_2, main_deck);
     assign_cards(player_3, main_deck);
     player_cards_init(player_1->deck);
-    // printf("Pre-flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
+    printf("Pre-flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!GetKeyPressed())    // Detect window close button or ESC key
+    while (!WindowShouldClose())    // Detect window close button or ESC key
     {
+      if (GetKeyPressed()) {
       switch(gameS->current_step) {
         case Flop:
           {
@@ -265,6 +266,7 @@ int main(void) {
             card_pop(main_deck, rand_index);
             house_deck->count = 3;
             house_cards_init(house_deck);
+            printf("Flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
             gameS->current_step = Turn;
           }
           break;
@@ -275,6 +277,7 @@ int main(void) {
             card_pop(main_deck, rand_index);
             house_deck->count = 4;
             house_cards_init(house_deck);
+            printf("Turn: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
             gameS->current_step = River;
           }
           break;
@@ -285,109 +288,12 @@ int main(void) {
             card_pop(main_deck, rand_index);
             house_deck->count = 5;
             house_cards_init(house_deck);
+            printf("River: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
             gameS->current_step = Showdown;
           }
           break;
         case Showdown:
           {
-            int a = 0;
-          }
-          break;
-      } 
-      BeginDrawing();
-
-      ClearBackground(LIGHTGRAY);
-      draw_deck(house_deck);
-      draw_deck(player_1->deck);
-      EndDrawing();
-      //----------------------------------------------------------------------------------
-    }
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-  /* do {
-    switch(gameS->current_step) {
-      case PreFlop:
-        { 
-          system("clear");
-          // Deal two cards to each player
-          assign_cards(player_1, main_deck);
-          assign_cards(player_2, main_deck);
-          assign_cards(player_3, main_deck);
-
-          // Display only the cards of the Player 1 
-          display_cards(player_1->deck->cards, player_1->deck->count);
-          printf("Pre-flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
-          gameS->current_step = Flop;
-          getchar();
-        }
-        break;
-      case Flop:
-        {
-          system("clear");
-          display_cards(player_1->deck->cards, player_1->deck->count);
-          printf("Flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
-          printf("\n\n");
-          // Show The First 3 cards 
-          int rand_index = random_int(0, main_deck->count - 1);
-          house_deck->cards = malloc(sizeof(Card) * 2);
-          house_deck->cards[0] = main_deck->cards[rand_index];
-          card_pop(main_deck, rand_index);
-
-
-          rand_index = random_int(0, main_deck->count - 1);
-          house_deck->cards[1] = main_deck->cards[rand_index];
-          card_pop(main_deck, rand_index);
-
-
-          rand_index = random_int(0, main_deck->count - 1);
-          house_deck->cards[2] = main_deck->cards[rand_index];
-          card_pop(main_deck, rand_index);
-
-          house_deck->count = 3;
-
-          display_cards(house_deck->cards, house_deck->count);
-          gameS->current_step = Turn;
-          getchar();
-        }
-        break;
-      case Turn:
-        {
-          system("clear");
-          display_cards(player_1->deck->cards, player_1->deck->count);
-          printf("Turn: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
-          printf("\n\n");
-
-          int rand_index = random_int(0, main_deck->count - 1);
-          house_deck->cards[3] = main_deck->cards[rand_index];
-          card_pop(main_deck, rand_index);
-          house_deck->count = 4;
-          display_cards(house_deck->cards, house_deck->count);
-          gameS->current_step = River;
-          getchar();
-        }
-        break;
-      case River:
-        {
-          system("clear");
-          display_cards(player_1->deck->cards, player_1->deck->count);
-          printf("River: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
-          printf("\n\n");
-
-          int rand_index = random_int(0, main_deck->count - 1);
-          house_deck->cards[4] = main_deck->cards[rand_index];
-          card_pop(main_deck, rand_index);
-          house_deck->count = 5;
-          display_cards(house_deck->cards, house_deck->count);
-          gameS->current_step = Showdown;
-          getchar();
-        }
-        break;
-      case Showdown:
-        {
           Deck *players[] = { player_1->deck, player_2->deck, player_3->deck };
           HandScore scores[3];
           int winner = showdown(players, 3, house_deck, scores);
@@ -397,17 +303,19 @@ int main(void) {
           else
             printf("Player %d wins with %s!\n", winner + 1,
                 hand_rank_name(scores[winner].rank));
-         printf("\nPlayer 2\n");
-         display_cards(player_2->deck->cards, player_2->deck->count);
-         printf("\nPlayer 3\n");
-         display_cards(player_3->deck->cards, player_3->deck->count);
-         running = false;
-         break;
-        }
-        break;
+          }
+      } 
+      }
+      BeginDrawing();
+
+      ClearBackground(LIGHTGRAY);
+      draw_deck(house_deck);
+      draw_deck(player_1->deck);
+      EndDrawing();
+      //----------------------------------------------------------------------------------
     }
 
-  } while(running); */
+    CloseWindow();        // Close window and OpenGL context
 
   return 0;
 }
