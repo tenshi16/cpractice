@@ -95,6 +95,20 @@ void player_cards_init(Deck *player_deck) {
   player_deck->cards[1].y = Window_Size.y - player_deck->cards[1].height - PADDING;
 }
 
+void opponent_cards_init(Deck *opponent_card) {
+  // Set default size
+  opponed_card->cards[0].width= 100;
+  opponed_card->cards[1].width= 100;
+  opponed_card->cards[0].height= 150;
+  opponed_card->cards[1].height = 150;
+
+  // Set default position
+  opponed_card->cards[0].x = Window_Size.x - opponent_card->cards[0].width - PADDING;
+  opponed_card->cards[0].y = Window_Size.y - PADDING;
+  opponed_card->cards[1].x = Window_Size.x;
+  opponed_card->cards[1].y = Window_Size.y  - PADDING;
+}
+
 void house_cards_init(Deck *house_deck) {
   for(size_t i = 0; i < house_deck->count; i++){
     if (house_deck->cards[i].width ==  0.0f) {
@@ -232,24 +246,24 @@ int main(void) {
   gameS->current_step = Flop;
 
   // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 1920;
-    const int screenHeight = 1080;
+  //--------------------------------------------------------------------------------------
+  const int screenWidth = 1920;
+  const int screenHeight = 1080;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-    assign_cards(player_1, main_deck);
-    assign_cards(player_2, main_deck);
-    assign_cards(player_3, main_deck);
-    player_cards_init(player_1->deck);
-    printf("Pre-flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
+  InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+  assign_cards(player_1, main_deck);
+  assign_cards(player_2, main_deck);
+  assign_cards(player_3, main_deck);
+  player_cards_init(player_1->deck);
+  printf("Pre-flop: %.1f%%\n", calculate_winrate(player_1->deck, house_deck, 2) * 100);
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+  SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+                                  //--------------------------------------------------------------------------------------
 
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-      if (GetKeyPressed()) {
+                                  // Main game loop
+  while (!WindowShouldClose())    // Detect window close button or ESC key
+  {
+    if (GetKeyPressed()) {
       switch(gameS->current_step) {
         case Flop:
           {
@@ -294,28 +308,26 @@ int main(void) {
           break;
         case Showdown:
           {
-          Deck *players[] = { player_1->deck, player_2->deck, player_3->deck };
-          HandScore scores[3];
-          int winner = showdown(players, 3, house_deck, scores);
+            Deck *players[] = { player_1->deck, player_2->deck, player_3->deck };
+            HandScore scores[3];
+            int winner = showdown(players, 3, house_deck, scores);
 
-          if (winner == -1)
-            printf("Tie!\n");
-          else
-            printf("Player %d wins with %s!\n", winner + 1,
-                hand_rank_name(scores[winner].rank));
+            if (winner == -1)
+              printf("Tie!\n");
+            else
+              printf("Player %d wins with %s!\n", winner + 1,
+                  hand_rank_name(scores[winner].rank));
           }
       } 
-      }
-      BeginDrawing();
-
-      ClearBackground(LIGHTGRAY);
-      draw_deck(house_deck);
-      draw_deck(player_1->deck);
-      EndDrawing();
-      //----------------------------------------------------------------------------------
     }
+    BeginDrawing();
+    ClearBackground(LIGHTGRAY);
+    draw_deck(house_deck);
+    draw_deck(player_1->deck);
+    EndDrawing();
+  }
 
-    CloseWindow();        // Close window and OpenGL context
+  CloseWindow();        // Close window and OpenGL context
 
   return 0;
 }
