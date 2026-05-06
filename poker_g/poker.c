@@ -97,16 +97,16 @@ void player_cards_init(Deck *player_deck) {
 
 void opponent_cards_init(Deck *opponent_card) {
   // Set default size
-  opponed_card->cards[0].width= 100;
-  opponed_card->cards[1].width= 100;
-  opponed_card->cards[0].height= 150;
-  opponed_card->cards[1].height = 150;
+  opponent_card->cards[0].width= 100;
+  opponent_card->cards[1].width= 100;
+  opponent_card->cards[0].height= 150;
+  opponent_card->cards[1].height = 150;
 
   // Set default position
-  opponed_card->cards[0].x = Window_Size.x - opponent_card->cards[0].width - PADDING;
-  opponed_card->cards[0].y = Window_Size.y - PADDING;
-  opponed_card->cards[1].x = Window_Size.x;
-  opponed_card->cards[1].y = Window_Size.y  - PADDING;
+  opponent_card->cards[0].x = Window_Size.x - opponent_card->cards[0].width - PADDING;
+  opponent_card->cards[0].y = Window_Size.y - PADDING;
+  opponent_card->cards[1].x = Window_Size.x;
+  opponent_card->cards[1].y = Window_Size.y  - PADDING;
 }
 
 void house_cards_init(Deck *house_deck) {
